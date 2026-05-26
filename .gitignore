@@ -1,0 +1,17 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+venv/
+.env
+
+# macOS
+.DS_Store
+
+# Streamlit
+.streamlit/
+
+# VS Code
+.vscode/
