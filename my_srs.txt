@@ -1,0 +1,1532 @@
+# Software Requirements Specification (SRS)
+## Proof-of-Concept Medical Monitoring Platform
+
+**Document ID:** SRS-MMP-POC-001  
+**Version:** 1.0 Draft  
+**Document Classification:** Confidential - Internal Use Only  
+**Prepared For:** Product Development, Clinical Engineering, Embedded Engineering, Software Engineering, Quality Assurance, Regulatory Affairs, Human Factors Engineering, Verification and Validation  
+**Date:** 2026-05-27
+
+## 1. Document Control
+
+### 1.1 Confidentiality Statement
+This document contains confidential and proprietary information related to a proof-of-concept medical monitoring platform intended for internal product development, systems engineering, verification planning, and future design history file compilation. Distribution shall be restricted to authorized personnel involved in product definition, engineering, quality, regulatory, clinical, cybersecurity, and executive review.
+
+### 1.2 Document Purpose
+This Software Requirements Specification defines the software, hardware-interfacing, data handling, user interface, alarm management, cybersecurity, safety, integration, and verification requirements for a proof-of-concept medical monitoring platform intended for hospital-based physiological monitoring, advanced hemodynamic analysis, perioperative monitoring, and critical care decision support. Standard SRS guidance commonly structures the specification into introduction, overall description, detailed requirements, interfaces, and appendices, which has been adopted and expanded here for a medical device context.[cite:2][cite:5]
+
+### 1.3 Document Ownership
+| Role | Name / Function | Responsibility |
+|---|---|---|
+| System Author | `<Systems Architect>` | Primary technical authorship |
+| Clinical Author | `<Clinical Workflow Analyst>` | Clinical use model definition |
+| Embedded Reviewer | `<Embedded Systems Lead>` | Sensor and platform interface review |
+| Software Reviewer | `<Software Architect>` | Application and backend review |
+| Regulatory Reviewer | `<Regulatory Affairs Lead>` | Standards and submission alignment |
+| Quality Reviewer | `<QA/RA Representative>` | Quality system alignment |
+| Cybersecurity Reviewer | `<Security Lead>` | Security and privacy review |
+| Approval Authority | `<Program Sponsor>` | Final approval |
+
+### 1.4 Revision History
+| Version | Date | Author | Description | Status |
+|---|---|---|---|---|
+| 0.1 | 2026-05-27 | Systems Engineering | Initial framework and inferred requirements baseline | Draft |
+| 0.5 | `<TBD>` | Cross-functional team | Clinical, software, and interface review update | In Review |
+| 0.9 | `<TBD>` | QA/RA | Verification and traceability alignment | Pre-Approval |
+| 1.0 | `<TBD>` | Approved authority | Approved baseline for PoC implementation | Approved |
+
+### 1.5 Approval Record
+| Function | Name | Signature | Date | Decision |
+|---|---|---|---|---|
+| Systems Engineering | `<Name>` | `<Signature>` | `<Date>` | `<Approve/Reject>` |
+| Clinical Affairs | `<Name>` | `<Signature>` | `<Date>` | `<Approve/Reject>` |
+| Quality Assurance | `<Name>` | `<Signature>` | `<Date>` | `<Approve/Reject>` |
+| Regulatory Affairs | `<Name>` | `<Signature>` | `<Date>` | `<Approve/Reject>` |
+| Software Engineering | `<Name>` | `<Signature>` | `<Date>` | `<Approve/Reject>` |
+| Program Management | `<Name>` | `<Signature>` | `<Date>` | `<Approve/Reject>` |
+
+### 1.6 Distribution List
+| Group | Access Level | Distribution Method |
+|---|---|---|
+| Product Development | Controlled | Document repository |
+| Embedded Engineering | Controlled | Document repository |
+| Software Engineering | Controlled | Document repository |
+| Quality Assurance | Controlled | eQMS / controlled copy |
+| Regulatory Affairs | Controlled | eQMS / controlled copy |
+| Clinical Affairs | Read-only | Controlled distribution |
+| Verification & Validation | Controlled | Test repository link |
+
+### 1.7 Document Status Assumptions
+This document is intended as a full, traceability-ready SRS for a proof-of-concept platform and is written with structure and rigor consistent with future transition into formal medical device development artifacts. Where source materials are incomplete or inaccessible, assumptions have been documented and requirements have been expanded using established medical device software engineering practices and standard SRS structuring conventions.[cite:3][cite:5][cite:9]
+
+## 2. Introduction
+
+### 2.1 Purpose
+The purpose of this SRS is to define complete, testable, and traceable requirements for a medical monitoring platform that acquires, processes, visualizes, stores, alarms on, and exports physiological, hemodynamic, respiratory, perfusion, neuro-monitoring, and analytics-derived patient data. The specification is intended to guide software developers, firmware and embedded engineers, clinical workflow designers, UI/UX teams, cybersecurity engineers, testers, and regulatory documentation authors.
+
+### 2.2 Scope
+The platform covered by this SRS includes bedside patient monitoring software, sensor interface logic, parameter acquisition services, alarm management, local data persistence, user authentication and authorization, historical review, analytics display, connectivity interfaces, and optional enterprise integration services. The scope includes proof-of-concept implementation intended for monitored clinical environments such as operating rooms, procedural areas, post-anesthesia care units, and intensive care units.
+
+The scope excludes final marketed labeling claims, certified interoperability declarations, final production manufacturing controls, and formal clinical performance claims requiring separate validation. The document nevertheless defines requirements in a manner suitable for eventual maturation into design input documentation.
+
+### 2.3 Intended Use
+The intended use of the platform is to display and manage patient physiological and hemodynamic monitoring information from connected sensors and associated calculation modules to support clinician awareness, trend assessment, alarm handling, and decision support in monitored healthcare settings. The platform is not intended, within this proof-of-concept scope, to autonomously diagnose disease or initiate therapy without clinician review.
+
+### 2.4 Intended Users
+Intended users include:
+- Physicians in perioperative, critical care, and sedation environments.
+- Nurses and nurse anesthetists responsible for bedside monitoring.
+- Perfusionists, advanced hemodynamic specialists, and procedural teams.
+- Biomedical engineering personnel responsible for setup, calibration, and troubleshooting.
+- Clinical researchers and human factors evaluators operating the system in controlled pilot environments.
+
+### 2.5 Clinical Environment
+The system is intended for use in hospital and procedure-based settings with trained healthcare operators, line-powered equipment, controlled networking, and the possibility of multiple simultaneous patient monitoring sessions across different acuity levels. Environmental assumptions include high cognitive load, intermittent urgent interventions, glare, ambient noise, infection-control cleaning, and frequent alarm competition from adjacent systems.
+
+### 2.6 Product Overview
+The proof-of-concept product is a modular monitoring platform composed of a central software application, local acquisition and integration services, hardware abstraction interfaces for supported sensors, signal quality and validation services, alarm processing services, visualization components, historical trend review modules, predictive analytics views, and secure data exchange interfaces. Standard SRS frameworks place product perspective, functions, user classes, interfaces, constraints, and dependencies within the overall description; this document extends those principles to the medical monitoring domain.[cite:2][cite:5]
+
+### 2.7 Clinical Context
+The platform is intended to support continuous and intermittent observation of cardiovascular, respiratory, temperature, and neuro-monitoring parameters. It may also present advanced hemodynamic and predictive indices including cardiac output, cardiac index, stroke volume, stroke volume variation, pulse pressure variation, tissue oxygenation, oxygen delivery, hypotension prediction index, guided hemodynamic indicators, autoregulation or perfusion-related derived metrics, awareness or sedation metrics, and waveform-based interpretations where supported by sensor and algorithm availability.
+
+### 2.8 System Boundaries
+The system boundary includes:
+- Local user application software.
+- Sensor acquisition services and device communication modules.
+- Platform operating system services required for execution.
+- Optional edge gateway and optional cloud synchronization functions.
+- Local audit logs, trend storage, alarm storage, and session records.
+- Enterprise integration connectors for EMR or hospital information exchange.
+
+The system boundary excludes:
+- Therapy delivery hardware.
+- Hospital network core infrastructure.
+- Third-party EMR systems beyond defined interfaces.
+- Clinician medical judgment.
+- Non-supported third-party analytics engines.
+
+### 2.9 Assumptions
+- Use occurs under trained supervision by licensed clinical personnel.
+- Connected sensors are applied according to manufacturer instructions.
+- The PoC system is deployed in controlled evaluation environments.
+- Network connectivity may be intermittent and cannot be assumed for essential local monitoring.
+- Alarm annunciation on the local platform remains primary even when remote notifications are enabled.
+- Predictive and advanced analytics are decision-support functions and shall not suppress primary physiological alarm behavior.
+
+### 2.10 Dependencies
+- Availability of compatible sensors or simulated sensor feeds.
+- Availability of hardware abstraction layer drivers.
+- Availability of validated time synchronization source.
+- Availability of secure credential management service.
+- Availability of operating system and cryptographic libraries maintained under controlled configuration.
+- Availability of clinical workflow definitions and alarm policy configuration for deployment sites.
+
+## 3. Regulatory and Standards Considerations
+
+### 3.1 General Approach
+The platform shall be developed with requirements, architecture, risk, usability, cybersecurity, and verification artifacts that can support future regulated development activities. Medical device software documentation typically requires traceable requirements and supporting verification evidence, and the SRS therefore includes requirement identifiers, verification methods, and acceptance criteria aligned to that expectation.[cite:3][cite:5]
+
+### 3.2 IEC 62304 - Medical Device Software Lifecycle Processes
+**Relevance:** High. IEC 62304 is directly relevant to software lifecycle planning, software safety classification, architecture, implementation, verification, maintenance, and problem resolution for medical device software.
+
+**Affected Modules:**
+- All software items and SOUP-managed components.
+- Alarm manager.
+- Acquisition engine.
+- Analytics engine.
+- UI presentation layer.
+- Data persistence and integration modules.
+
+**Compliance Implications:**
+- Software items shall be partitioned into architectural elements with defined interfaces.
+- Requirements shall support software unit, integration, and system verification.
+- Risk control requirements derived from hazardous situations shall be traceable.
+- Configuration management and change impact evaluation shall be applied.
+
+**Required Documentation Artifacts:**
+- Software development plan.
+- Software architecture description.
+- Unit and integration verification records.
+- Problem resolution logs.
+- SOUP inventory and evaluation.
+- Requirements traceability matrix.
+
+### 3.3 IEC 60601 Family
+**Relevance:** High for electrical medical systems and alarms where the software is part of a medical electrical system or intended accessory environment.
+
+**Affected Modules:**
+- Hardware interface layer.
+- Alarm annunciation subsystem.
+- Power state handling.
+- User-facing displays coupled to patient monitoring functions.
+
+**Compliance Implications:**
+- Interaction with monitored parameters, alarm indicators, and essential performance concepts shall be considered.
+- System behavior during power anomalies, startup, shutdown, and fault conditions shall be defined.
+- Audible and visual alarm behavior shall remain compatible with alarm safety expectations.
+
+**Required Documentation Artifacts:**
+- Essential performance analysis.
+- System safety and electrical interface documentation.
+- Alarm behavior verification reports.
+- Environmental and stress test records.
+
+### 3.4 ISO 14971 - Risk Management
+**Relevance:** High. The platform includes alarming, decision-support display, signal quality dependencies, and data handling functions that may contribute to hazardous situations.
+
+**Affected Modules:**
+- Alarm subsystem.
+- Analytics subsystem.
+- Data validation subsystem.
+- UI and workflow components.
+- Sensor integration components.
+
+**Compliance Implications:**
+- Risk controls shall be translated into design input requirements.
+- Residual risk communication needs shall influence UI and labeling assumptions.
+- Hazardous situations such as delayed alarms, false confidence, and incorrect calculations shall be documented.
+
+**Required Documentation Artifacts:**
+- Risk management plan.
+- Hazard analysis / preliminary hazard analysis.
+- Risk control traceability matrix.
+- Risk verification evidence.
+
+### 3.5 IEC 62366 - Usability Engineering
+**Relevance:** High due to time-critical clinical interactions, alarm acknowledgment, and interpretation of monitoring data.
+
+**Affected Modules:**
+- Dashboard.
+- Alarm banner system.
+- Settings screens.
+- Pairing and calibration workflows.
+- Trend and waveform views.
+
+**Compliance Implications:**
+- Critical tasks shall be identified and represented in user workflows.
+- UI states shall minimize use error during alarm conditions and rapid context switching.
+- Alarm colors, navigation depth, acknowledgment workflows, and trend interpretation affordances shall be evaluated.
+
+**Required Documentation Artifacts:**
+- Use specification.
+- Critical task analysis.
+- Formative usability records.
+- Summative usability validation plan.
+
+### 3.6 IEC 82304
+**Relevance:** Moderate to High where the platform includes health software characteristics beyond embedded-only functions, especially if cloud and distributed components are included.
+
+**Affected Modules:**
+- Cloud synchronization.
+- Remote dashboarding.
+- Software deployment and update functions.
+- Product assurance and health software quality attributes.
+
+**Compliance Implications:**
+- Product safety, security, lifecycle supportability, and user information strategy shall be considered for software as a product.
+
+**Required Documentation Artifacts:**
+- Product assurance documentation.
+- Deployment and maintenance process records.
+- Security and update management records.
+
+### 3.7 FDA SaMD Guidance
+**Relevance:** High for decision-support functions, predictive indices, and analytics if these influence clinical decision making.
+
+**Affected Modules:**
+- Predictive analytics engine.
+- HPI/GHI/AFM/CAI display modules.
+- Clinical decision support views.
+
+**Compliance Implications:**
+- Intended use boundaries shall be explicit.
+- Algorithm outputs shall be clearly identified as supportive information.
+- Inputs, conditions of validity, and unavailable states shall be clearly presented.
+
+**Required Documentation Artifacts:**
+- Intended use statement.
+- Clinical association rationale.
+- Analytical validation plan.
+- Human factors impact evaluation.
+
+### 3.8 FDA Cybersecurity Guidance
+**Relevance:** High for connected medical devices, authentication, update mechanisms, auditability, and threat monitoring.
+
+**Affected Modules:**
+- Authentication and authorization.
+- Secure communication stack.
+- Update services.
+- Logging and audit subsystems.
+- Device trust management.
+
+**Compliance Implications:**
+- Security controls shall be treated as design inputs.
+- Threat modeling, SBOM controls, vulnerability intake, and secure update provisions shall be supported.
+
+**Required Documentation Artifacts:**
+- Threat model.
+- Cybersecurity risk assessment.
+- SBOM.
+- Security verification evidence.
+- Patch and vulnerability management procedures.
+
+### 3.9 HIPAA and GDPR
+**Relevance:** High where identifiable patient data are stored, transmitted, exported, or accessed remotely.
+
+**Affected Modules:**
+- Patient session management.
+- Data export.
+- User management.
+- Audit trail.
+- Backup and synchronization functions.
+
+**Compliance Implications:**
+- Role-based data access, minimum necessary data display, retention control, and auditability shall be defined.
+- Regional deployment configuration shall permit privacy policy adaptation.
+
+**Required Documentation Artifacts:**
+- Data flow and privacy impact assessment.
+- Access control matrix.
+- Audit retention policy.
+- Data deletion and export procedures.
+
+### 3.10 HL7, FHIR, and DICOM
+**Relevance:** Moderate to High depending on hospital integration scope.
+
+**Affected Modules:**
+- EMR connector.
+- Patient context ingestion.
+- Observation export.
+- Report generation.
+- Imaging reference linkage where applicable.
+
+**Compliance Implications:**
+- Message validation and field mapping shall be specified.
+- Units, timestamps, patient identifiers, and observation status shall be controlled.
+- Interface failures shall not compromise local monitoring.
+
+**Required Documentation Artifacts:**
+- Interface control document.
+- Message conformance profiles.
+- Integration verification scripts.
+- Data mapping specifications.
+
+### 3.11 Alarm Standards and Usability Standards
+**Relevance:** High due to safety-critical notification behavior.
+
+**Affected Modules:**
+- Audible alert subsystem.
+- Visual alarm subsystem.
+- Alarm queue and prioritization engine.
+- Alarm silence and pause workflows.
+
+**Compliance Implications:**
+- Distinct alarm priorities, acknowledgement logic, and visual persistence shall be defined.
+- Alarm-inhibited states and technical alarm dependencies shall be controlled.
+
+**Required Documentation Artifacts:**
+- Alarm philosophy document.
+- Alarm verification matrix.
+- Human factors alarm review records.
+
+## 4. Definitions and Acronyms
+
+### 4.1 Clinical and Hemodynamic Terms
+| Term | Definition |
+|---|---|
+| HR | Heart Rate |
+| BP | Blood Pressure |
+| MAP | Mean Arterial Pressure |
+| CO | Cardiac Output |
+| CI | Cardiac Index |
+| SV | Stroke Volume |
+| SVV | Stroke Volume Variation |
+| PPV | Pulse Pressure Variation |
+| SpO2 | Peripheral Oxygen Saturation |
+| EtCO2 | End-tidal Carbon Dioxide |
+| EEG | Electroencephalogram |
+| EMG | Electromyogram |
+| BIS | Bispectral Index or comparable processed EEG sedation indicator |
+| DO2 | Oxygen Delivery |
+| StO2 | Tissue Oxygen Saturation |
+| HPI | Hypotension Prediction Index or equivalent predictive hypotension metric |
+| GHI | Guided Hemodynamic Indicator or equivalent derived guidance metric |
+| AFM | Autonomic / Functional / Flow-derived monitoring metric as configured by algorithm package |
+| CAI | Cerebral / Circulatory / Composite Awareness Index as configured by algorithm package |
+
+### 4.2 Alarm and UI Terms
+| Term | Definition |
+|---|---|
+| Technical Alarm | Alarm caused by equipment, signal, communication, or sensor condition |
+| Physiological Alarm | Alarm caused by patient parameter threshold or condition |
+| Alarm Pause | Temporary suspension of annunciation under controlled workflow |
+| Alarm Silence | Audible muting while visual alarm persists |
+| Latching Alarm | Alarm state requiring user acknowledgement or reset condition |
+| Dashboard | Primary patient summary screen |
+| Tile | UI component displaying parameter status |
+| Banner | Persistent top or overlay alarm/status indicator |
+| Trend View | Historical parameter display over time |
+| Waveform View | Live sampled signal display |
+
+### 4.3 Regulatory and Technical Acronyms
+| Acronym | Meaning |
+|---|---|
+| SRS | Software Requirements Specification |
+| DHF | Design History File |
+| V&V | Verification and Validation |
+| RBAC | Role-Based Access Control |
+| HAL | Hardware Abstraction Layer |
+| API | Application Programming Interface |
+| TLS | Transport Layer Security |
+| PHI | Protected Health Information |
+| EMR | Electronic Medical Record |
+| ICU | Intensive Care Unit |
+| OR | Operating Room |
+| PACU | Post-Anesthesia Care Unit |
+| SOUP | Software of Unknown Provenance |
+
+## 5. System Overview
+
+### 5.1 High-Level Architecture
+The platform shall use a modular layered architecture composed of acquisition interfaces, signal processing services, alarm and rules engines, parameter calculation modules, UI presentation components, persistence services, integration services, and cybersecurity services. A modular architecture with explicit interfaces supports traceability, verification planning, and controlled software partitioning consistent with medical device software lifecycle expectations.[cite:3][cite:5]
+
+### 5.2 Textual Architecture Diagram
+```text
+[Patient Sensors / Simulators]
+        |
+        v
+[Sensor Interface Drivers / Device Adapters]
+        |
+        v
+[Hardware Abstraction Layer]
+        |
+        v
+[Acquisition Manager] --> [Signal Quality Engine] --> [Parameter Calculation Engine]
+        |                          |                        |
+        |                          v                        v
+        |                    [Technical Faults]       [Derived Metrics]
+        |                          |                        |
+        v                          v                        v
+[Alarm Manager] <------------ [Clinical Rules Engine] ---- [Predictive Analytics Engine]
+        |
+        +--> [Audible Alarm Controller]
+        +--> [Visual Alarm Controller]
+        +--> [Notification Service]
+        |
+        v
+[UI Layer: Dashboard / Trends / Waveforms / Settings / Pairing / Review]
+        |
+        +--> [Audit Log Service]
+        +--> [Session Manager]
+        +--> [Local Database]
+        +--> [Export Service]
+        +--> [HL7/FHIR Integration]
+        +--> [Cloud / Remote Sync (Optional)]
+```
+
+### 5.3 Software Subsystems
+- Acquisition Manager: receives raw data packets, timestamps them, performs source attribution, and forwards them for validation.
+- Signal Quality Engine: evaluates availability, integrity, plausibility, and noise conditions.
+- Parameter Calculation Engine: computes direct and derived numerical metrics.
+- Alarm Manager: evaluates thresholds, priority rules, latching behavior, silence state, pause state, escalation rules, and alarm history.
+- Clinical Rules Engine: coordinates dependencies among parameters, context, and monitoring mode.
+- Predictive Analytics Engine: calculates supportive risk or trend indicators where validated inputs are present.
+- UI Layer: presents live values, waveforms, alarms, trends, status indicators, prompts, and workflows.
+- Persistence and Export Services: store records and support retrieval and export.
+- Security Services: authenticate users, authorize actions, protect sessions, and record auditable events.
+
+### 5.4 Hardware Architecture
+The hardware environment may include a bedside computing platform, integrated or external touchscreen display, speakers or audio output, optional battery backup, communication interfaces for sensors and gateways, and optional network interfaces for enterprise integration. The hardware abstraction layer shall isolate platform-specific device communication details from clinical application logic.
+
+### 5.5 Sensor Ecosystem
+The platform may interface with invasive pressure sensors, arterial waveform sources, pulse oximetry probes, capnography sensors, temperature probes, EEG/EMG-based sedation modules, tissue oxygenation sensors, cardiac output measurement interfaces, and external patient monitor feeds. Supported sensor combinations shall be mode-dependent and shall be validated at connection time.
+
+### 5.6 Connectivity Architecture
+Connectivity may include serial, USB, Ethernet, BLE, Wi-Fi, or vendor-specific device interfaces for data acquisition, and Ethernet or Wi-Fi for enterprise communication. The system shall distinguish local monitoring essential functions from optional network-dependent functions such that loss of enterprise connectivity does not interrupt primary local monitoring.
+
+### 5.7 Data Acquisition Flow
+1. Detect connected sensor or data source.
+2. Validate source identity and compatibility.
+3. Start data stream handshake.
+4. Timestamp all incoming samples using synchronized system time.
+5. Perform packet integrity and sequence validation.
+6. Run quality and plausibility filters.
+7. Publish data to parameter and waveform processing pipelines.
+8. Evaluate alarms and UI updates.
+9. Persist numerical values, states, and events.
+10. Export or synchronize non-blocking downstream copies where configured.
+
+### 5.8 Processing Pipeline
+Raw samples shall be normalized to canonical units, associated with device and channel identifiers, filtered for validity, and then forwarded to display and analytics modules. Derived parameters shall only be marked valid when all prerequisite source parameters meet signal-quality and timing requirements.
+
+### 5.9 Security Architecture
+The security architecture shall include user authentication, RBAC, encrypted data at rest and in transit, signed updates, secure credential storage, audit trails, session controls, and trusted device communication. Security functions shall operate without impeding timely alarm annunciation or core bedside visualization.
+
+## 6. Functional Requirements
+
+### 6.1 Requirement Block Format
+Each requirement in this SRS includes: Requirement ID, Title, Requirement Statement, Priority, Rationale, Source, Dependencies, Verification Method, and Acceptance Criteria. Standard SRS references emphasize uniquely identified, testable requirements and clear separation of functional and non-functional content, which this format follows.[cite:5][cite:6]
+
+### 6.2 Patient Monitoring Core
+
+**FR-MON-001**  
+**Title:** Patient Session Initialization  
+**Requirement:** The system shall require creation or selection of an active patient monitoring session before associating acquired physiological data with a patient record.  
+**Priority:** Critical  
+**Rationale:** Prevent incorrect patient-to-data association.  
+**Source:** Inferred clinical workflow requirement.  
+**Dependencies:** Session manager, user authentication, patient context module.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** No monitored patient data shall be stored under a null or ambiguous session identifier during normal operation.
+
+**FR-MON-002**  
+**Title:** Continuous Parameter Display  
+**Requirement:** The application shall display all valid active monitored parameters continuously while the monitoring session is active.  
+**Priority:** Critical  
+**Rationale:** Clinicians require uninterrupted visibility of current patient status.  
+**Source:** Clinical monitoring workflow.  
+**Dependencies:** Acquisition manager, UI dashboard, parameter engine.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** Active valid parameters shall be refreshed on the primary dashboard at the configured update rate for each parameter class.
+
+**FR-MON-003**  
+**Title:** Multi-Parameter Synchronization  
+**Requirement:** The system shall timestamp all acquired measurements and display synchronized parameter values using a common time base.  
+**Priority:** High  
+**Rationale:** Trending and derived analytics require temporal consistency.  
+**Source:** Data integrity requirement.  
+**Dependencies:** Time service, acquisition manager, persistence layer.  
+**Verification Method:** Integration test.  
+**Acceptance Criteria:** Sample timestamps from simultaneous sources shall not differ by more than 100 ms after synchronization adjustment.
+
+**FR-MON-004**  
+**Title:** Multi-Patient Context Protection  
+**Requirement:** The system shall prevent concurrent display of data from more than one patient within a single bedside monitoring context unless an explicitly authorized multi-patient centralized view is active.  
+**Priority:** Critical  
+**Rationale:** Reduce risk of patient misidentification.  
+**Source:** Safety and privacy constraint.  
+**Dependencies:** UI layer, session manager, RBAC.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** Bedside view shall bind to only one patient context at a time, and context change shall require explicit confirmation.
+
+### 6.3 Waveform Acquisition and Processing
+
+**FR-WAV-001**  
+**Title:** Live Waveform Rendering  
+**Requirement:** The system shall render available physiological waveforms in near real time with a visual update latency not exceeding 250 ms from validated sample receipt.  
+**Priority:** Critical  
+**Rationale:** Timely waveform interpretation is essential for clinician use.  
+**Source:** Monitoring display requirement.  
+**Dependencies:** Acquisition manager, waveform renderer, display subsystem.  
+**Verification Method:** Performance test.  
+**Acceptance Criteria:** Median end-to-end display latency shall be less than or equal to 250 ms across supported waveform channels under nominal load.
+
+**FR-WAV-002**  
+**Title:** Waveform Quality Annotation  
+**Requirement:** The system shall indicate waveform quality degradation when signal quality falls below configured acceptance thresholds.  
+**Priority:** High  
+**Rationale:** Prevent overreliance on invalid waveforms.  
+**Source:** Safety and usability.  
+**Dependencies:** Signal quality engine, UI layer.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** Waveform quality indicator shall transition within 1 second of signal quality threshold breach.
+
+**FR-WAV-003**  
+**Title:** Waveform Freeze and Review  
+**Requirement:** The application shall allow authorized users to freeze a displayed waveform for review without interrupting background acquisition, alarm evaluation, or persistence.  
+**Priority:** Medium  
+**Rationale:** Supports clinical inspection without compromising monitoring continuity.  
+**Source:** Clinical workflow inference.  
+**Dependencies:** UI layer, acquisition manager, persistence layer.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** Freeze mode shall affect only displayed view state and shall not halt acquisition or alarm processing.
+
+### 6.4 Alarm Management Functional Requirements
+
+**FR-ALM-001**  
+**Title:** High Priority Alarm Generation  
+**Requirement:** The system shall generate a high-priority audible and visual alarm when monitored physiological parameters exceed configured critical safety thresholds.  
+**Priority:** Critical  
+**Rationale:** Timely clinician notification of potentially dangerous patient conditions.  
+**Source:** Alarm safety requirement.  
+**Dependencies:** Alarm manager, parameter engine, UI layer, audio subsystem.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** Alarm annunciation shall begin within 1 second of confirmed threshold breach.
+
+**FR-ALM-002**  
+**Title:** Technical Alarm Generation  
+**Requirement:** The system shall generate a technical alarm when sensor disconnect, unsupported sensor state, invalid calibration, communication timeout, or signal corruption prevents reliable monitoring.  
+**Priority:** Critical  
+**Rationale:** Technical faults can invalidate patient information.  
+**Source:** Sensor safety requirement.  
+**Dependencies:** Sensor manager, signal quality engine, alarm manager.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** Technical alarms shall be raised within 2 seconds of fault detection.
+
+**FR-ALM-003**  
+**Title:** Alarm Persistence  
+**Requirement:** The system shall maintain active visual indication of an unacknowledged alarm until the alarm condition clears and alarm workflow rules permit reset.  
+**Priority:** Critical  
+**Rationale:** Prevent loss of alarm awareness.  
+**Source:** Alarm workflow requirement.  
+**Dependencies:** Alarm manager, UI layer.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** Visual alarm indication shall persist throughout active or latched alarm state.
+
+**FR-ALM-004**  
+**Title:** Alarm History Capture  
+**Requirement:** The platform shall record alarm onset time, priority, source parameter, acknowledgement time, clear time, associated user action, and related technical context for each alarm event.  
+**Priority:** High  
+**Rationale:** Supports review, traceability, and quality investigations.  
+**Source:** Audit and clinical review requirement.  
+**Dependencies:** Alarm manager, audit service, database.  
+**Verification Method:** Integration test.  
+**Acceptance Criteria:** All alarm lifecycle events shall be persisted with immutable event records.
+
+### 6.5 Predictive Analytics and Decision Support
+
+**FR-ANA-001**  
+**Title:** Derived Analytics Availability Gating  
+**Requirement:** The system shall display predictive or derived analytics only when all required source signals are present, current, and validated.  
+**Priority:** Critical  
+**Rationale:** Prevent display of misleading analytics from incomplete inputs.  
+**Source:** Safety and analytics integrity requirement.  
+**Dependencies:** Analytics engine, signal quality engine, parameter dependency rules.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** Derived analytics shall enter an unavailable state within 1 second of prerequisite loss.
+
+**FR-ANA-002**  
+**Title:** Analytics Context Display  
+**Requirement:** The application shall display the validity status, update timestamp, and dependency status for each predictive analytics metric.  
+**Priority:** High  
+**Rationale:** Improve interpretability and reduce use error.  
+**Source:** Clinical decision support usability requirement.  
+**Dependencies:** Analytics engine, UI layer.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** Each analytics tile shall show current status as valid, degraded, unavailable, or stale.
+
+**FR-ANA-003**  
+**Title:** Decision Support Separation  
+**Requirement:** The system shall visually distinguish primary measured parameters from predictive analytics and advisory content.  
+**Priority:** High  
+**Rationale:** Prevent confusion between measured values and supportive interpretations.  
+**Source:** Human factors and SaMD boundary requirement.  
+**Dependencies:** UI design system, analytics module.  
+**Verification Method:** Usability test.  
+**Acceptance Criteria:** Measured parameters and advisory analytics shall use distinct labels and presentation regions across all supported views.
+
+### 6.6 User Authentication and User Management
+
+**FR-AUTH-001**  
+**Title:** Named User Authentication  
+**Requirement:** The application shall require named user authentication before permitting access to patient-identifiable data, configuration workflows, alarm review functions, or data export functions.  
+**Priority:** Critical  
+**Rationale:** Supports security, accountability, and privacy.  
+**Source:** Cybersecurity and privacy requirement.  
+**Dependencies:** Identity service, RBAC, audit log service.  
+**Verification Method:** Security test.  
+**Acceptance Criteria:** Access to protected functions shall be denied until authentication is successful.
+
+**FR-AUTH-002**  
+**Title:** Role-Based Access Control  
+**Requirement:** The platform shall restrict access to configuration, calibration, user management, integration settings, and export functions based on assigned user role.  
+**Priority:** Critical  
+**Rationale:** Limit unsafe or unauthorized actions.  
+**Source:** Security and safety requirement.  
+**Dependencies:** RBAC engine, identity service, UI permissions layer.  
+**Verification Method:** Security and system test.  
+**Acceptance Criteria:** Unauthorized roles shall not be able to invoke restricted functions through the UI or API.
+
+**FR-AUTH-003**  
+**Title:** Session Reauthentication for Critical Actions  
+**Requirement:** The system shall require reauthentication for user management, alarm policy modification, integration endpoint changes, and data deletion actions when the current authenticated session age exceeds the configured privileged-action timeout.  
+**Priority:** High  
+**Rationale:** Reduce misuse from unattended authenticated sessions.  
+**Source:** Security best practice.  
+**Dependencies:** Session manager, RBAC, security policy engine.  
+**Verification Method:** Security test.  
+**Acceptance Criteria:** Reauthentication prompt shall be enforced for eligible actions after timeout expiry.
+
+### 6.7 Sensor Management and Device Pairing
+
+**FR-SEN-001**  
+**Title:** Sensor Identification  
+**Requirement:** The platform shall identify each connected sensor or external data source by device type, channel, unique identifier if available, and compatibility status.  
+**Priority:** Critical  
+**Rationale:** Prevent unsupported or misassigned sources from being used.  
+**Source:** Sensor integration workflow.  
+**Dependencies:** HAL, sensor manager.  
+**Verification Method:** Integration test.  
+**Acceptance Criteria:** Sensor identity and compatibility state shall be available to the UI within 3 seconds of connection.
+
+**FR-SEN-002**  
+**Title:** Pairing Workflow Guidance  
+**Requirement:** The system shall provide guided pairing or connection workflows for supported sensors and shall report pairing success, failure cause, and next recommended action.  
+**Priority:** High  
+**Rationale:** Reduce setup errors and improve operator recovery.  
+**Source:** Usability and supportability requirement.  
+**Dependencies:** Sensor manager, UI layer, logging.  
+**Verification Method:** Usability and system test.  
+**Acceptance Criteria:** Pairing outcomes shall be clearly displayed with actionable status text for all supported connection workflows.
+
+**FR-SEN-003**  
+**Title:** Sensor Disconnect Detection  
+**Requirement:** The system shall detect sensor disconnect or loss of source data stream and transition affected parameters to an invalid state.  
+**Priority:** Critical  
+**Rationale:** Prevent display of stale values as current.  
+**Source:** Safety requirement.  
+**Dependencies:** Sensor manager, acquisition manager, signal quality engine.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** Invalidation shall occur within 2 seconds of confirmed disconnect or source timeout.
+
+### 6.8 Data Storage, Export, Logging, Recovery
+
+**FR-DAT-001**  
+**Title:** Local Persistence of Monitoring Session Data  
+**Requirement:** The system shall persist numerics, waveform snapshots or segments as configured, alarms, user actions, configuration events, and device status events for each monitoring session.  
+**Priority:** High  
+**Rationale:** Supports review, troubleshooting, and traceability.  
+**Source:** Data management requirement.  
+**Dependencies:** Database, session manager, acquisition pipeline.  
+**Verification Method:** Integration test.  
+**Acceptance Criteria:** Persisted records shall remain retrievable after controlled application restart.
+
+**FR-DAT-002**  
+**Title:** Secure Export  
+**Requirement:** The application shall support authorized export of selected session data in configured formats without modifying source records.  
+**Priority:** Medium  
+**Rationale:** Support analysis and interoperability.  
+**Source:** Clinical review and enterprise integration requirement.  
+**Dependencies:** Export service, RBAC, audit service.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** Export shall preserve original timestamps, units, and parameter identities and shall create an audit event.
+
+**FR-LOG-001**  
+**Title:** Audit Trail Recording  
+**Requirement:** The system shall record user login, logout, patient context changes, alarm acknowledgement, calibration actions, configuration changes, exports, deletions, and privileged access failures in an immutable audit trail.  
+**Priority:** Critical  
+**Rationale:** Supports traceability, compliance, and incident review.  
+**Source:** Regulatory and security requirement.  
+**Dependencies:** Audit service, identity service, database.  
+**Verification Method:** Security and system test.  
+**Acceptance Criteria:** Each auditable event shall include timestamp, user identifier, action type, target object, and outcome.
+
+**FR-REC-001**  
+**Title:** Controlled Recovery After Software Restart  
+**Requirement:** The system shall recover to a defined startup state after planned restart or software crash and shall clearly indicate whether a previous patient session can be resumed, reviewed, or must be closed.  
+**Priority:** High  
+**Rationale:** Prevent ambiguous post-restart clinical states.  
+**Source:** Safety and recoverability requirement.  
+**Dependencies:** Startup service, session manager, persistence layer, watchdog.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** On restart, no stale active monitoring state shall be silently resumed without operator confirmation.
+
+## 7. User Interface Requirements
+
+### 7.1 Screen Inventory
+The application shall provide, at minimum, the following screens:
+- Login screen.
+- User/session lock screen.
+- Patient selection / patient session start screen.
+- Home dashboard.
+- Detailed waveform screen.
+- Trends screen.
+- Alarm history screen.
+- Current active alarms screen.
+- Sensor pairing screen.
+- Calibration workflow screen.
+- Settings screen.
+- User management screen.
+- Analytics dashboard.
+- Historical review screen.
+- Export screen.
+- Technical diagnostics screen.
+- Error and recovery dialog screens.
+- Training/demo mode screen.
+
+### 7.2 Navigation Structure
+The UI shall support a shallow navigation hierarchy such that critical monitoring information is accessible from the home dashboard within a maximum of two navigation actions. Critical tasks and alarm-related workflows should be minimized and clearly surfaced, consistent with usability-focused SRS expectations for medical systems.[cite:3][cite:5]
+
+### 7.3 UI Requirements
+
+**UI-001**  
+**Title:** Primary Dashboard Visibility  
+**Requirement:** The application shall display current patient identity, monitoring mode, active alarm status, primary parameters, and connectivity status on the home dashboard at all times during active monitoring.  
+**Priority:** Critical  
+**Rationale:** Maintain situation awareness.  
+**Source:** Clinical workflow.  
+**Dependencies:** UI layer, session manager, alarm manager.  
+**Verification Method:** System and usability test.  
+**Acceptance Criteria:** All listed elements shall remain visible without scrolling in supported bedside display layouts.
+
+**UI-002**  
+**Title:** Alarm Banner Persistence  
+**Requirement:** The application shall display an alarm banner overlay or persistent banner region for all active alarms sorted by priority and recency.  
+**Priority:** Critical  
+**Rationale:** Ensure visual alarm prominence.  
+**Source:** Alarm safety requirement.  
+**Dependencies:** Alarm manager, UI layer.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** Active critical alarms shall remain visible on all clinical screens until acknowledged or cleared according to policy.
+
+**UI-003**  
+**Title:** Parameter Tile Status Coding  
+**Requirement:** The UI shall differentiate valid, degraded, unavailable, and alarm states using consistent visual coding, iconography, and text labels.  
+**Priority:** High  
+**Rationale:** Improve rapid interpretation.  
+**Source:** Usability engineering requirement.  
+**Dependencies:** UI design system, signal quality engine, alarm manager.  
+**Verification Method:** Usability test.  
+**Acceptance Criteria:** No parameter state shall be represented by color alone; each state shall include at least one additional indicator such as icon, pattern, or label.
+
+**UI-004**  
+**Title:** Touch Interaction Responsiveness  
+**Requirement:** The application shall acknowledge touchscreen input within 100 ms and complete standard navigation transitions within 500 ms under nominal operating conditions.  
+**Priority:** High  
+**Rationale:** Reduce interaction ambiguity during urgent care.  
+**Source:** Usability and performance requirement.  
+**Dependencies:** UI framework, platform hardware.  
+**Verification Method:** Performance test.  
+**Acceptance Criteria:** 95 percent of measured touch interactions shall meet the defined response thresholds.
+
+**UI-005**  
+**Title:** Orientation and Display Adaptation  
+**Requirement:** The UI shall maintain readability, alarm prominence, and parameter grouping in both supported landscape and portrait orientations where platform configuration enables orientation changes.  
+**Priority:** Medium  
+**Rationale:** Support varied hardware setups.  
+**Source:** Deployment flexibility requirement.  
+**Dependencies:** UI framework, device profile manager.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** No critical parameter or alarm control shall be truncated or hidden in supported orientations.
+
+### 7.4 Accessibility and Presentation Rules
+- The UI shall support a high-contrast mode.
+- The UI shall support configurable text scaling for critical numeric displays.
+- The UI shall use distinct alarm priority colors consistent across screens.
+- Dark mode and light mode shall preserve alarm salience.
+- Critical acknowledgment controls shall be sized for gloved touch operation.
+- Audible alerts shall not be the sole indicator of alarm conditions.
+
+### 7.5 UI State Transitions
+```text
+[Login] -> [Patient Selection] -> [Session Setup] -> [Monitoring Dashboard]
+[Monitoring Dashboard] -> [Waveforms]
+[Monitoring Dashboard] -> [Trends]
+[Monitoring Dashboard] -> [Alarm Details]
+[Monitoring Dashboard] -> [Sensor Pairing]
+[Monitoring Dashboard] -> [Calibration]
+[Monitoring Dashboard] -> [Analytics Dashboard]
+[Any Monitoring Screen] -> [Active Alarm Overlay]
+[Any Screen] -> [Critical Fault Dialog] -> [Recovery / Safe State]
+[Idle Timeout] -> [Locked Session]
+```
+
+## 8. Alarm Management Requirements
+
+### 8.1 Alarm Philosophy
+The alarm subsystem shall distinguish physiological alarms, technical alarms, advisory notices, and informational notifications. Alarm behavior shall prioritize patient safety, preserve clinician awareness, and avoid masking unresolved technical conditions.
+
+### 8.2 Alarm Priorities
+- Priority 1 - Critical: Immediate patient safety risk or loss of essential monitoring integrity.
+- Priority 2 - High: Significant clinical concern requiring prompt attention.
+- Priority 3 - Medium: Condition requiring review but not immediate response.
+- Priority 4 - Low/Advisory: Non-urgent condition or predictive advisory.
+
+### 8.3 Alarm Requirements
+
+**ALM-001**  
+**Title:** Alarm Priority Resolution  
+**Requirement:** The system shall assign each alarm to a configured priority class based on parameter, threshold, technical cause, and monitoring mode.  
+**Priority:** Critical  
+**Rationale:** Required for consistent notification behavior.  
+**Source:** Alarm management policy.  
+**Dependencies:** Alarm rules engine, parameter engine, monitoring mode manager.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** For each configured alarm condition, the assigned priority shall match the approved alarm rules configuration.
+
+**ALM-002**  
+**Title:** Alarm Escalation  
+**Requirement:** The system shall escalate an unacknowledged active high or critical alarm according to configured escalation timers and notification rules.  
+**Priority:** High  
+**Rationale:** Reduce risk of ignored alarm conditions.  
+**Source:** Safety and workflow requirement.  
+**Dependencies:** Alarm manager, notification service, timing service.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** Escalation shall occur within configured timer tolerance of plus or minus 1 second.
+
+**ALM-003**  
+**Title:** Audible Silence Behavior  
+**Requirement:** The system shall permit authorized users to silence audible alarm output for a configured interval while maintaining persistent visual alarm indication and alarm state logging.  
+**Priority:** Critical  
+**Rationale:** Support procedure workflow without losing alarm awareness.  
+**Source:** Clinical alarm workflow.  
+**Dependencies:** Alarm manager, UI layer, audit service, audio subsystem.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** Visual alarm and countdown to silence expiration shall remain visible throughout the silence interval.
+
+**ALM-004**  
+**Title:** Alarm Pause Restrictions  
+**Requirement:** The system shall restrict alarm pause functionality to authorized roles, defined monitoring modes, and configured maximum pause durations.  
+**Priority:** Critical  
+**Rationale:** Uncontrolled alarm pause can create hazardous silent states.  
+**Source:** Safety requirement.  
+**Dependencies:** RBAC, alarm policy engine, monitoring mode manager.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** Alarm pause shall terminate automatically at timeout or when disallowed state transitions occur.
+
+**ALM-005**  
+**Title:** Re-trigger Conditions  
+**Requirement:** The system shall re-trigger audible alarm annunciation when an alarmed condition worsens, recurs after clear, or remains active beyond the configured silence interval.  
+**Priority:** Critical  
+**Rationale:** Prevent prolonged unattended abnormal states.  
+**Source:** Alarm safety logic.  
+**Dependencies:** Alarm manager, timing service, parameter engine.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** Re-trigger behavior shall follow configured severity and timer rules for each alarm class.
+
+**ALM-006**  
+**Title:** Alarm Synchronization  
+**Requirement:** The platform shall synchronize active alarm state, acknowledgement state, and clear state across all local modules and authorized connected viewers within 2 seconds of state change.  
+**Priority:** High  
+**Rationale:** Ensure consistent user awareness.  
+**Source:** Distributed monitoring requirement.  
+**Dependencies:** Alarm manager, messaging service, UI clients.  
+**Verification Method:** Integration test.  
+**Acceptance Criteria:** State divergence among synchronized clients shall not exceed 2 seconds.
+
+### 8.4 Textual Alarm State Diagram
+```text
+[Normal]
+  -> threshold breach / technical fault
+[Alarm Pending Validation]
+  -> confirmed condition
+[Active Unacknowledged Alarm]
+  -> user acknowledge
+[Active Acknowledged Alarm]
+  -> condition clears
+[Cleared / Logged]
+
+From Active Unacknowledged or Active Acknowledged:
+  -> audible silence requested -> [Visual Active + Audible Silenced]
+  -> pause allowed and initiated -> [Paused with Countdown]
+  -> condition worsens -> [Escalated Alarm]
+  -> technical invalidation of source -> [Technical Alarm Override]
+```
+
+### 8.5 Safety Implications
+- Technical alarm states shall override parameter validity states where measurement integrity is compromised.
+- Derived analytics alarms shall not suppress primary physiological threshold alarms.
+- Alarm silence shall never erase visual evidence of active alarm conditions.
+- When audio hardware fails self-test, the system shall generate a technical fault and require alternative visual emphasis.
+
+## 9. Monitoring Parameter Requirements
+
+### 9.1 General Parameter Rules
+For each monitored parameter, the system shall define data source, unit, valid range, display precision, refresh rate, alarm eligibility, dependency conditions, and invalidation behavior. A complete SRS commonly separates interface and non-functional constraints from detailed behavioral requirements; this section formalizes parameter-specific monitoring behavior using that same principle.[cite:2][cite:5]
+
+### 9.2 Parameter Table
+| Parameter | Source Sensor / Module | Units | Typical Refresh | Alarm Eligible | Notes |
+|---|---|---|---|---|---|
+| Heart Rate | ECG, pulse waveform, derived pulse source | bpm | 1 s | Yes | Source hierarchy configurable |
+| Blood Pressure | Invasive or NIBP source | mmHg | 1 s or per cuff cycle | Yes | Systolic/diastolic/MAP |
+| MAP | Derived from invasive or cuff measurement | mmHg | 1 s or per cycle | Yes | May drive hemodynamic workflows |
+| Cardiac Output | CO module or algorithm | L/min | 5 s | Yes | Dependency-driven |
+| Cardiac Index | Derived from CO and body metrics | L/min/m2 | 5 s | Yes | Requires patient profile |
+| Stroke Volume | Hemodynamic module | mL | 5 s | Yes | Derived metric |
+| SVV | Advanced arterial analysis | % | 5 s | Yes | Controlled validity |
+| PPV | Advanced arterial analysis | % | 5 s | Yes | Controlled validity |
+| Tissue Oxygenation | NIRS or equivalent | % | 2 s | Yes | Site-specific display |
+| Oxygen Delivery | Derived metric | mL/min or configured | 10 s | Advisory / configurable | Input dependency heavy |
+| HPI | Predictive analytics engine | index | 5 s | Advisory / configurable | Distinct from measured value |
+| GHI | Guidance engine | index / advisory state | 5 s | Advisory / configurable | Context dependent |
+| AFM | Analytics module | configured | 5 s | Advisory | Algorithm package dependent |
+| CAI | Analytics module | configured | 5 s | Advisory | Algorithm package dependent |
+| EEG | EEG module | uV / waveform | 250 ms waveform | Technical / advisory | Raw or processed view |
+| EMG | Neuro-monitoring module | configured | 1 s | Advisory | Sedation context |
+| BIS / Sedation | Processed EEG module | index | 1 s | Yes / configurable | Sedation workflow |
+| Respiratory Rate | Capnography / impedance / derived | breaths/min | 1 s | Yes | Source dependent |
+| Temperature | Temperature probe | °C or °F | 5 s | Yes | Configurable units |
+| SpO2 | Pulse oximetry probe | % | 1 s | Yes | Perfusion quality dependent |
+| EtCO2 | Capnography module | mmHg or kPa | 1 s | Yes | Includes waveform and value |
+
+### 9.3 Parameter-Specific Requirement Pattern
+
+**MON-HR-001**  
+**Title:** Heart Rate Display and Validation  
+**Requirement:** The system shall display heart rate only when a valid source signal designated by the source-priority configuration is present and passes signal-quality validation.  
+**Priority:** Critical  
+**Rationale:** Prevent display of unreliable pulse information.  
+**Source:** Core monitoring requirement.  
+**Dependencies:** Signal quality engine, parameter engine, source manager.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** HR shall transition to unavailable state within 2 seconds of loss of valid source.
+
+**MON-BP-001**  
+**Title:** Blood Pressure Availability  
+**Requirement:** The platform shall display invasive blood pressure continuously when an invasive pressure source is active and validated, and shall display non-invasive blood pressure results upon completion of a valid cuff cycle when NIBP mode is active.  
+**Priority:** Critical  
+**Rationale:** BP is a primary hemodynamic variable.  
+**Source:** Clinical monitoring workflow.  
+**Dependencies:** Pressure sensor interface, NIBP interface, parameter engine.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** Source type and timestamp shall be indicated for displayed BP values.
+
+**MON-MAP-001**  
+**Title:** MAP Calculation and Display  
+**Requirement:** The system shall calculate or receive MAP and display it as a primary parameter whenever blood pressure data are valid and sufficient for MAP determination.  
+**Priority:** Critical  
+**Rationale:** MAP is required for advanced hemodynamic and safety logic.  
+**Source:** Hemodynamic requirement.  
+**Dependencies:** BP module, parameter engine.  
+**Verification Method:** Unit and system test.  
+**Acceptance Criteria:** MAP shall update whenever the upstream BP source updates.
+
+**MON-CO-001**  
+**Title:** Cardiac Output Gating  
+**Requirement:** The application shall display cardiac output only when the designated CO measurement or calculation module reports valid state and all prerequisites are satisfied.  
+**Priority:** High  
+**Rationale:** Advanced metrics must not be displayed without validity assurance.  
+**Source:** Advanced hemodynamic requirement.  
+**Dependencies:** CO module, signal quality engine, analytics dependencies.  
+**Verification Method:** Integration test.  
+**Acceptance Criteria:** CO shall show unavailable state with reason code when prerequisites fail.
+
+**MON-SPO2-001**  
+**Title:** SpO2 Signal Quality Handling  
+**Requirement:** The system shall suppress alarm evaluation based on SpO2 values when the associated pulse oximetry signal quality indicates invalid measurement state and shall instead raise a technical or quality alarm as configured.  
+**Priority:** Critical  
+**Rationale:** Avoid false physiological alarms from poor perfusion or sensor artifact.  
+**Source:** Safety and signal integrity requirement.  
+**Dependencies:** Pulse oximetry interface, signal quality engine, alarm manager.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** Alarm source shall transition from physiological evaluation to technical quality indication within 2 seconds of invalid quality state.
+
+**MON-ETCO2-001**  
+**Title:** EtCO2 Value and Waveform Correlation  
+**Requirement:** The system shall display EtCO2 numeric values with the corresponding capnography waveform source and shall invalidate the numeric value when the waveform source is lost or flagged invalid.  
+**Priority:** Critical  
+**Rationale:** Numerical interpretation depends on source waveform integrity.  
+**Source:** Respiratory monitoring safety requirement.  
+**Dependencies:** Capnography interface, waveform engine, parameter engine.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** Numeric EtCO2 shall not remain valid longer than 2 seconds after waveform invalidation.
+
+**MON-BIS-001**  
+**Title:** Sedation Metric Context Display  
+**Requirement:** The system shall display processed sedation metrics, including BIS-equivalent indices where supported, together with signal quality, update timestamp, and artifact status.  
+**Priority:** High  
+**Rationale:** Interpretation requires context regarding artifact and source validity.  
+**Source:** Neuro-monitoring requirement.  
+**Dependencies:** EEG/EMG module, analytics engine, UI layer.  
+**Verification Method:** Integration and usability test.  
+**Acceptance Criteria:** Artifact or poor-quality status shall be visible whenever the sedation metric is degraded.
+
+Additional parameter-specific requirements shall be instantiated for SV, SVV, PPV, StO2, DO2, HPI, GHI, AFM, CAI, respiratory rate, temperature, and EEG/EMG channels following the same requirement pattern during detailed design baselining.
+
+## 10. Monitoring Modes
+
+### 10.1 Mode Definitions
+The platform shall support mode-dependent behavior controlling parameter visibility, alarm policies, workflow steps, and analytics availability.
+
+### 10.2 Supported Modes
+- Invasive Monitoring Mode
+- Minimally Invasive Monitoring Mode
+- Non-Invasive Monitoring Mode
+- Surgical Mode
+- ICU Mode
+- Sedation Mode
+- Advanced Hemodynamic Mode
+- Predictive Analytics Mode
+- Training / Demo Mode
+
+### 10.3 Mode Requirements
+
+**MON-MOD-001**  
+**Title:** Mode Entry Validation  
+**Requirement:** The system shall validate user role, required sensor presence, and configuration readiness before entering a monitoring mode with restricted prerequisites.  
+**Priority:** Critical  
+**Rationale:** Prevent invalid workflows.  
+**Source:** Mode management requirement.  
+**Dependencies:** Mode manager, sensor manager, RBAC.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** Entry to restricted mode shall be denied with actionable reason if prerequisites are not satisfied.
+
+**MON-MOD-002**  
+**Title:** Safe Mode Transition  
+**Requirement:** The system shall preserve session continuity and clearly indicate mode transition effects on parameters, alarms, and analytics when changing monitoring mode.  
+**Priority:** High  
+**Rationale:** Reduce ambiguity during workflow changes.  
+**Source:** Clinical workflow requirement.  
+**Dependencies:** Mode manager, alarm manager, UI layer.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** All disabled or newly enabled parameters and alarms shall be identified on-screen at mode transition.
+
+**MON-MOD-003**  
+**Title:** Demo Mode Isolation  
+**Requirement:** The system shall clearly identify training or demo mode and shall prevent storage, export, or synchronization of demo data as clinical patient data.  
+**Priority:** Critical  
+**Rationale:** Prevent misuse of simulated data.  
+**Source:** Safety and data integrity requirement.  
+**Dependencies:** Mode manager, persistence layer, export service.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** Demo mode screens and exported files shall be visibly labeled as non-clinical simulation data.
+
+### 10.4 Mode Transition Rules
+- Surgical mode may enable enhanced alarm visibility and reduced navigation depth.
+- ICU mode may enable long-range trends and broader parameter set defaults.
+- Sedation mode may prioritize processed EEG and respiratory monitoring displays.
+- Predictive analytics mode shall require valid prerequisite sensors and explicit site enablement.
+- Training/demo mode shall disable EMR integration and production audit export.
+
+## 11. Sensor Integration Requirements
+
+### 11.1 Supported Sensor Types
+Supported sensor types may include invasive pressure transducers, ECG interfaces, pulse oximetry probes, capnography modules, NIRS sensors, temperature probes, EEG/EMG modules, CO measurement systems, and external monitor feeds. A standard SRS typically identifies software interfaces and connected components explicitly, and this section formalizes those integration expectations.[cite:5]
+
+### 11.2 Sensor Requirements
+
+**SEN-001**  
+**Title:** Sensor Compatibility Validation  
+**Requirement:** The system shall validate sensor type, firmware or protocol compatibility where detectable, and required channel mapping before accepting data for monitoring.  
+**Priority:** Critical  
+**Rationale:** Prevent unsupported source usage.  
+**Source:** Interface safety requirement.  
+**Dependencies:** HAL, sensor manager.  
+**Verification Method:** Integration test.  
+**Acceptance Criteria:** Unsupported devices shall be rejected with explicit fault reason.
+
+**SEN-002**  
+**Title:** Calibration Workflow Enforcement  
+**Requirement:** The system shall require completion of sensor or channel calibration for sensor types configured as calibration-dependent before enabling associated parameter validity.  
+**Priority:** Critical  
+**Rationale:** Calibration error can create unsafe values.  
+**Source:** Sensor integrity requirement.  
+**Dependencies:** Calibration service, sensor manager, parameter engine.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** Calibration-dependent parameters shall remain invalid until successful calibration completion is recorded.
+
+**SEN-003**  
+**Title:** Hot Swap Handling  
+**Requirement:** The platform shall detect replacement of a sensor during an active session and shall force revalidation of sensor identity, quality, and calibration state before re-enabling dependent parameters.  
+**Priority:** High  
+**Rationale:** Prevent silent continuation with mismatched sensor assumptions.  
+**Source:** Safety and workflow requirement.  
+**Dependencies:** Sensor manager, calibration service, signal quality engine.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** Replaced sensors shall not inherit prior validated state without requalification.
+
+**SEN-004**  
+**Title:** Reconnection Logic  
+**Requirement:** The system shall attempt reconnection to recoverable sensor interfaces according to configured retry intervals while maintaining correct invalid or fault indications during reconnection attempts.  
+**Priority:** High  
+**Rationale:** Improve resilience without misrepresenting data availability.  
+**Source:** Availability requirement.  
+**Dependencies:** Sensor manager, fault manager, UI layer.  
+**Verification Method:** Integration test.  
+**Acceptance Criteria:** Reconnection status and retry count shall be visible in diagnostics view for supported interfaces.
+
+## 12. Non-Functional Requirements
+
+### 12.1 Performance, Reliability, and Availability
+
+**NFR-001**  
+**Title:** Boot Time to Monitoring Readiness  
+**Requirement:** The system shall complete startup self-test and reach monitoring-ready state within 90 seconds of power-on under nominal configuration.  
+**Priority:** High  
+**Rationale:** Clinical workflows require predictable startup.  
+**Source:** Operational requirement.  
+**Dependencies:** Platform hardware, startup service, self-test framework.  
+**Verification Method:** Performance test.  
+**Acceptance Criteria:** 95 percent of measured startup cycles shall complete within 90 seconds.
+
+**NFR-002**  
+**Title:** Availability  
+**Requirement:** The platform shall achieve at least 99.5 percent application availability during planned evaluation periods excluding maintenance windows.  
+**Priority:** Medium  
+**Rationale:** Supports uninterrupted monitoring trials.  
+**Source:** PoC operational requirement.  
+**Dependencies:** Platform software, watchdog, recovery services.  
+**Verification Method:** Reliability test.  
+**Acceptance Criteria:** Availability shall meet or exceed target over the defined measurement period.
+
+**NFR-003**  
+**Title:** Alarm Processing Latency  
+**Requirement:** The system shall evaluate threshold-based alarm conditions within 250 ms of receipt of validated updated source data.  
+**Priority:** Critical  
+**Rationale:** Timely alarming is safety critical.  
+**Source:** Alarm timing requirement.  
+**Dependencies:** Parameter engine, alarm manager.  
+**Verification Method:** Performance test.  
+**Acceptance Criteria:** 99 percent of threshold evaluations shall complete within 250 ms under nominal load.
+
+**NFR-004**  
+**Title:** Local Storage Capacity  
+**Requirement:** The system shall store a minimum of 30 days of configured numeric trend data and 365 days of audit and alarm events without data loss under the validated retention profile.  
+**Priority:** High  
+**Rationale:** Support clinical review and compliance records.  
+**Source:** Data retention requirement.  
+**Dependencies:** Database, storage manager.  
+**Verification Method:** Stress test.  
+**Acceptance Criteria:** Storage quotas and rollover behavior shall preserve required retained data classes.
+
+**NFR-005**  
+**Title:** Resource Utilization  
+**Requirement:** The application shall maintain average CPU utilization below 70 percent and average memory utilization below 80 percent during nominal single-patient monitoring with full dashboard, trends, and active audit logging enabled.  
+**Priority:** Medium  
+**Rationale:** Preserve headroom for alarms and recovery tasks.  
+**Source:** Performance engineering requirement.  
+**Dependencies:** Application runtime, platform hardware.  
+**Verification Method:** Performance test.  
+**Acceptance Criteria:** Resource targets shall be met for the validated reference hardware profile.
+
+## 13. Cybersecurity Requirements
+
+**SEC-001**  
+**Title:** Encryption in Transit  
+**Requirement:** The system shall encrypt all external network communications carrying protected or configuration-sensitive data using TLS 1.2 or higher, with TLS 1.3 preferred where supported.  
+**Priority:** Critical  
+**Rationale:** Protect confidentiality and integrity of transmitted data.  
+**Source:** Cybersecurity requirement.  
+**Dependencies:** Network stack, certificate manager.  
+**Verification Method:** Security test.  
+**Acceptance Criteria:** No supported remote interface shall permit plaintext transmission of protected data.
+
+**SEC-002**  
+**Title:** Encryption at Rest  
+**Requirement:** The platform shall encrypt stored patient-identifiable data, audit records, and security-sensitive configuration data at rest using approved cryptographic mechanisms.  
+**Priority:** Critical  
+**Rationale:** Protect against storage compromise.  
+**Source:** Privacy and security requirement.  
+**Dependencies:** Storage manager, key management.  
+**Verification Method:** Security test.  
+**Acceptance Criteria:** Extracted storage media shall not expose readable protected data without authorized decryption path.
+
+**SEC-003**  
+**Title:** Password Policy  
+**Requirement:** The system shall enforce configurable password complexity, failed-login lockout, password expiry if enabled by site policy, and prevention of password reuse for locally managed accounts.  
+**Priority:** High  
+**Rationale:** Reduce unauthorized access risk.  
+**Source:** Security best practice.  
+**Dependencies:** Identity service, policy manager.  
+**Verification Method:** Security test.  
+**Acceptance Criteria:** Password acceptance and lockout behavior shall match configured policy set.
+
+**SEC-004**  
+**Title:** Secure Boot and Integrity  
+**Requirement:** The platform shall verify boot chain and application package integrity prior to execution and shall enter a restricted fault state when integrity verification fails.  
+**Priority:** Critical  
+**Rationale:** Prevent execution of unauthorized or corrupted software.  
+**Source:** Device trust requirement.  
+**Dependencies:** Bootloader, signing service, watchdog.  
+**Verification Method:** Security and system test.  
+**Acceptance Criteria:** Tampered startup artifacts shall prevent normal application launch.
+
+**SEC-005**  
+**Title:** Security Event Logging  
+**Requirement:** The system shall log authentication failures, privilege elevation attempts, configuration tampering, package verification failures, certificate errors, and update failures as security events.  
+**Priority:** High  
+**Rationale:** Support incident response.  
+**Source:** Cybersecurity monitoring requirement.  
+**Dependencies:** Audit service, security services.  
+**Verification Method:** Security test.  
+**Acceptance Criteria:** Each security event shall include severity, timestamp, source, and disposition.
+
+## 14. Safety Requirements
+
+**SAF-001**  
+**Title:** Safe State on Critical Internal Fault  
+**Requirement:** The system shall transition to a defined safe state when a critical internal fault prevents reliable acquisition, alarm processing, or display of essential monitoring information.  
+**Priority:** Critical  
+**Rationale:** Prevent misleading clinical operation under unsafe fault conditions.  
+**Source:** System safety requirement.  
+**Dependencies:** Fault manager, watchdog, UI layer, alarm manager.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** Safe state shall visibly announce the fault, invalidate affected data, and prevent continued presentation of compromised values as current.
+
+**SAF-002**  
+**Title:** Watchdog Supervision  
+**Requirement:** The platform shall implement watchdog supervision for critical processes including acquisition, alarm evaluation, and UI heartbeat monitoring.  
+**Priority:** Critical  
+**Rationale:** Detect process hang conditions.  
+**Source:** Embedded safety requirement.  
+**Dependencies:** Watchdog framework, process manager.  
+**Verification Method:** Integration test.  
+**Acceptance Criteria:** Failure of supervised processes shall be detected and logged within the configured watchdog timeout.
+
+**SAF-003**  
+**Title:** Power Loss Handling  
+**Requirement:** The system shall preserve persisted records, close open transactions safely, and restore to controlled startup behavior after recoverable power interruption.  
+**Priority:** Critical  
+**Rationale:** Prevent data corruption and ambiguous restart state.  
+**Source:** Safety and reliability requirement.  
+**Dependencies:** Persistence layer, startup manager, power monitor.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** Simulated abrupt power loss shall not result in undetected database corruption in validated recovery tests.
+
+**SAF-004**  
+**Title:** Sensor Failure Safety Handling  
+**Requirement:** The system shall invalidate any parameter dependent on a failed or disconnected sensor and shall initiate the corresponding technical alarm workflow.  
+**Priority:** Critical  
+**Rationale:** Prevent stale or fabricated measurements.  
+**Source:** Sensor safety requirement.  
+**Dependencies:** Sensor manager, parameter engine, alarm manager.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** All dependent parameters shall be invalidated within 2 seconds of confirmed sensor failure.
+
+## 15. Data Management Requirements
+
+**DAT-001**  
+**Title:** Trend Retention  
+**Requirement:** The system shall retain numeric trend data for the active and completed monitoring sessions for a minimum configurable duration of 30 days on validated local storage profiles.  
+**Priority:** High  
+**Rationale:** Support review and analysis.  
+**Source:** Data management requirement.  
+**Dependencies:** Database, retention manager.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** Requested trend review data within retention window shall be retrievable without loss of timestamps or units.
+
+**DAT-002**  
+**Title:** Patient Session Closure  
+**Requirement:** The application shall require explicit session closure or transfer workflow before permitting a patient context to be removed from active monitoring.  
+**Priority:** Critical  
+**Rationale:** Prevent accidental orphaning of active patient data.  
+**Source:** Clinical workflow requirement.  
+**Dependencies:** Session manager, UI layer, audit service.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** Session closure shall create an auditable event and finalize session records.
+
+**DAT-003**  
+**Title:** HL7/FHIR Observation Export  
+**Requirement:** The system shall support export of configured observations and device-generated records using site-enabled HL7 and/or FHIR interface profiles where integration is enabled.  
+**Priority:** Medium  
+**Rationale:** Enable enterprise interoperability.  
+**Source:** Interoperability requirement.  
+**Dependencies:** Integration service, mapping engine, RBAC.  
+**Verification Method:** Integration test.  
+**Acceptance Criteria:** Exported messages shall conform to configured profile mappings and include unit and timestamp fields.
+
+**DAT-004**  
+**Title:** Backup and Restore  
+**Requirement:** The platform shall support controlled backup and validated restore of configuration, audit logs, and retained session records without altering source timestamps or event order.  
+**Priority:** Medium  
+**Rationale:** Support resilience and investigations.  
+**Source:** Operational support requirement.  
+**Dependencies:** Backup service, storage manager, security service.  
+**Verification Method:** Recovery test.  
+**Acceptance Criteria:** Restored datasets shall pass integrity verification and remain queryable.
+
+## 16. Validation and Verification Strategy
+
+### 16.1 V&V Principles
+Verification planning shall cover unit, integration, system, usability, performance, cybersecurity, and traceability validation activities. Standard SRS practice emphasizes testable requirements; accordingly, each requirement category in this document includes an intended verification method to support downstream V&V planning.[cite:5][cite:6]
+
+### 16.2 Verification Requirements
+
+**VAL-001**  
+**Title:** Unit Test Coverage for Safety-Critical Logic  
+**Requirement:** The development process shall define and execute unit tests for safety-critical alarm logic, parameter validation logic, and session-state transition logic with documented expected results.  
+**Priority:** High  
+**Rationale:** Early defect detection.  
+**Source:** Verification strategy requirement.  
+**Dependencies:** Development framework, CI pipeline.  
+**Verification Method:** Process audit and review.  
+**Acceptance Criteria:** Safety-critical units shall have documented unit tests covering nominal, boundary, and error conditions.
+
+**VAL-002**  
+**Title:** Integration Testing of Sensor and Analytics Interfaces  
+**Requirement:** Integration tests shall verify correct data flow, timing, and fault handling among sensor adapters, acquisition services, calculation engines, and alarm services.  
+**Priority:** Critical  
+**Rationale:** Inter-module failures can compromise monitoring integrity.  
+**Source:** Integration requirement.  
+**Dependencies:** Integration environment, simulators, test harness.  
+**Verification Method:** Integration test.  
+**Acceptance Criteria:** All supported interface combinations in the approved test matrix shall pass defined data and fault scenarios.
+
+**VAL-003**  
+**Title:** Alarm Verification  
+**Requirement:** System testing shall verify alarm thresholds, delay logic, silence behavior, pause behavior, escalation, latching, and history recording for each configured alarm class.  
+**Priority:** Critical  
+**Rationale:** Alarm correctness is essential performance.  
+**Source:** Alarm verification requirement.  
+**Dependencies:** Alarm test matrix, simulator inputs, system test environment.  
+**Verification Method:** System test.  
+**Acceptance Criteria:** All alarm scenarios shall demonstrate behavior matching approved alarm rules within specified timing tolerances.
+
+**VAL-004**  
+**Title:** Clinical Simulation Testing  
+**Requirement:** The verification strategy shall include representative clinical simulation scenarios covering OR, ICU, sedation, and technical fault workflows.  
+**Priority:** High  
+**Rationale:** Validate end-to-end workflow realism.  
+**Source:** Clinical workflow and usability requirement.  
+**Dependencies:** Simulation environment, clinical review, test protocols.  
+**Verification Method:** Clinical simulation test.  
+**Acceptance Criteria:** Simulated workflow scenarios shall execute without unresolved safety-critical deviations.
+
+### 16.3 Test Environment Requirements
+- Hardware-in-the-loop environment for sensor adapters.
+- Data replay environment for waveform and numerical scenarios.
+- Isolated cybersecurity test environment.
+- UI usability evaluation environment with representative lighting and noise.
+- Traceability-controlled verification repository.
+
+### 16.4 Entry and Exit Criteria
+- Entry: approved baselined requirements, version-controlled test objects, calibrated simulators, and approved test protocols.
+- Exit: all critical and high-priority defects dispositioned, traceability complete, deviations approved, and test evidence archived.
+
+## 17. Traceability Matrix
+
+### 17.1 Sample Traceability Matrix
+| Requirement ID | Hazard / Risk | Verification Test | UI Screen | Standard / Guideline | Design Module |
+|---|---|---|---|---|---|
+| FR-ALM-001 | Alarm failure / delayed response | SYS-ALM-001 | Active Alarm Banner | IEC 62304 / alarm safety expectations | Alarm Manager |
+| FR-SEN-003 | Sensor disconnect not detected | INT-SEN-004 | Dashboard / Sensor Status | ISO 14971 / IEC 62304 | Sensor Manager |
+| FR-AUTH-002 | Unauthorized configuration change | SEC-RBAC-002 | Settings / Admin | FDA cybersecurity guidance / HIPAA | Identity + RBAC |
+| UI-001 | Misidentification / loss of awareness | UI-SYS-001 | Dashboard | IEC 62366 | UI Framework |
+| SEC-004 | Unauthorized software execution | SEC-BOOT-001 | Startup Fault Screen | FDA cybersecurity guidance | Secure Boot |
+| SAF-001 | Misleading operation under fault | SYS-SAF-003 | Critical Fault Dialog | ISO 14971 / IEC 60601 context | Fault Manager |
+
+### 17.2 Traceability Rules
+- Every critical and high-priority requirement shall map to one or more verification activities.
+- Every risk control requirement shall map to at least one hazard or hazardous situation.
+- Every UI critical task requirement shall map to a usability validation scenario.
+- Every interface requirement shall map to an integration test and interface design artifact.
+
+## 18. Risk Considerations
+
+### 18.1 Preliminary Risk Register
+| Risk ID | Hazard | Cause | Severity | Detection Mechanism | Primary Mitigation |
+|---|---|---|---|---|---|
+| RSK-001 | Delayed alarm | Processing backlog, thread stall | High | Alarm latency monitor, watchdog | Prioritized processing, watchdog, latency tests |
+| RSK-002 | False physiological alarm | Signal artifact, poor quality source | Medium | Signal quality rules | Quality gating, technical alarm substitution |
+| RSK-003 | Missed sensor disconnect | Cable intermittent or adapter failure | High | Heartbeat timeout, channel monitoring | Timeout detection, technical alarms |
+| RSK-004 | Incorrect parameter calculation | Dependency error, unit mismatch | High | Plausibility checks, unit tests | Canonical unit normalization, V&V |
+| RSK-005 | UI confusion during alarm | Poor visual hierarchy | High | Usability testing | Persistent alarm banner, color + text + icon |
+| RSK-006 | Trend misinterpretation | Stale data not marked | Medium | Staleness monitor | Timestamp display, unavailable indicators |
+| RSK-007 | Data corruption | Abrupt power loss, storage error | High | Integrity checks | Transaction-safe persistence, recovery validation |
+| RSK-008 | Connectivity failure masking data sync issue | Network outage | Medium | Sync status monitor | Local-first design, sync fault indication |
+| RSK-009 | Calibration misuse | User skips or misapplies calibration | High | Calibration state validation | Forced workflow and audit logging |
+| RSK-010 | Demo data mistaken as clinical data | Training mode confusion | High | Mode labeling and export guard | Isolated demo mode labeling and storage rules |
+
+### 18.2 Risk Control Linkage
+The following risk control themes shall be traced to requirements: alarm timeliness, source validation, UI clarity, session integrity, secure authentication, calibration enforcement, safe state entry, and fault recoverability. Risk management integration with software requirements is expected for medical device software and aligns with established standards-focused documentation practices.[cite:3][cite:5]
+
+## 19. Software Architecture Requirements
+
+### 19.1 Layered Architecture
+The software shall be partitioned into at least the following layers:
+- Hardware Abstraction Layer.
+- Acquisition and Device Communication Layer.
+- Signal Quality and Processing Layer.
+- Parameter and Analytics Computation Layer.
+- Alarm and Rules Layer.
+- Persistence and Audit Layer.
+- Integration and Export Layer.
+- UI Presentation Layer.
+- Security and Identity Layer.
+
+### 19.2 Architecture Requirements
+
+**ARC-001**  
+**Title:** Module Interface Definition  
+**Requirement:** Each software module shall expose documented interfaces defining inputs, outputs, error states, timing expectations, and ownership boundaries.  
+**Priority:** High  
+**Rationale:** Enables controlled integration and verification.  
+**Source:** Software architecture requirement.  
+**Dependencies:** Architecture description, interface control documents.  
+**Verification Method:** Design review.  
+**Acceptance Criteria:** Each baselined module shall have an approved interface definition record.
+
+**ARC-002**  
+**Title:** Fault Containment  
+**Requirement:** The architecture shall isolate non-essential failures such that failure of optional analytics, export, or synchronization modules does not block essential local monitoring and alarm processing.  
+**Priority:** Critical  
+**Rationale:** Preserve essential monitoring functions.  
+**Source:** Safety and availability requirement.  
+**Dependencies:** Process architecture, watchdog, fault manager.  
+**Verification Method:** Integration and fault-injection test.  
+**Acceptance Criteria:** Injected failure of non-essential modules shall not interrupt core acquisition and alarm functionality.
+
+**ARC-003**  
+**Title:** Canonical Data Model  
+**Requirement:** The platform shall normalize incoming parameter data into a canonical internal model including source identifier, units, timestamp, validity state, quality state, and patient session identifier.  
+**Priority:** High  
+**Rationale:** Prevent inconsistencies across modules.  
+**Source:** Data architecture requirement.  
+**Dependencies:** Acquisition manager, parameter engine, persistence layer.  
+**Verification Method:** Integration test.  
+**Acceptance Criteria:** Internal messages shall include the mandatory canonical fields for all monitored data classes.
+
+**ARC-004**  
+**Title:** API Version Control  
+**Requirement:** Internal and external service interfaces shall support version identification and backward compatibility strategy documentation.  
+**Priority:** Medium  
+**Rationale:** Reduce integration breakage during iteration.  
+**Source:** Software lifecycle best practice.  
+**Dependencies:** Integration services, architecture governance.  
+**Verification Method:** Design review and interface test.  
+**Acceptance Criteria:** Every released API endpoint or message schema shall include version metadata.
+
+## 20. Appendix
+
+### 20.1 Assumptions
+- Advanced analytics names such as HPI, GHI, AFM, and CAI are treated as configurable algorithmic modules whose exact mathematical definitions are product-package dependent.
+- The proof-of-concept may use simulated or bridged sensors for selected parameters.
+- Final marketed claims and accuracy statements are outside this document unless supported by separate validation evidence.
+- Hospital integration is optional for the initial prototype and shall not be prerequisite to local monitoring.
+
+### 20.2 Open Issues
+- Final supported sensor vendor matrix to be baselined.
+- Final hardware platform selection and screen size constraints to be baselined.
+- Final alarm tones and alarm philosophy approval pending clinical review.
+- Final privacy deployment profile for HIPAA-only, GDPR-only, or dual-jurisdiction environments pending deployment strategy.
+- Final algorithm availability and indication boundaries for predictive metrics pending analytical validation.
+
+### 20.3 Future Enhancements
+- Multi-bed central station support.
+- Remote clinician notification applications.
+- Enhanced clinical pathway guidance.
+- AI-assisted waveform interpretation with explainability controls.
+- Integrated report generation and longitudinal analytics.
+- Advanced fleet management and remote update orchestration.
+
+### 20.4 Example Alarm Sequence
+1. Invasive MAP falls below configured critical threshold.
+2. Signal quality remains valid for confirmation delay.
+3. Alarm manager transitions to active critical physiological alarm.
+4. Audible tone and red visual banner are activated.
+5. Event is logged with timestamp and source values.
+6. User acknowledges alarm; visual state persists while condition remains active.
+7. MAP recovers within normal range for configured clear interval.
+8. Alarm clears and history record is finalized.
+
+### 20.5 Example UI Workflow
+1. User authenticates.
+2. User selects patient and confirms session start.
+3. User connects invasive pressure source and pulse oximetry sensor.
+4. System validates sensors and updates dashboard status.
+5. User enters advanced hemodynamic mode.
+6. Dashboard displays MAP, CO, CI, SVV, PPV, and HPI tiles with dependency states.
+7. Alarm occurs and overlay takes focus.
+8. User reviews trend screen and acknowledges alarm.
+9. Session data are exported after session closure by authorized role.
+
+### 20.6 Example Sensor Lifecycle
+1. Sensor detected.
+2. Sensor type validated.
+3. Channel mapped.
+4. Calibration required and completed.
+5. Signal quality validated.
+6. Parameter enabled.
+7. Fault or disconnect occurs.
+8. Parameter invalidated and technical alarm generated.
+9. Sensor replaced.
+10. Revalidation completed.
+11. Parameter restored.
+
+### 20.7 Writing and Review Checklist
+- All requirements shall remain atomic, measurable, and testable.
+- Critical tasks shall be linked to usability evaluation.
+- Risk controls shall be traceable to hazards and verification evidence.
+- Parameter validity dependencies shall be explicitly documented during detailed design.
+- All interface schemas shall be baselined before integration verification begins.
+- All assumptions converted to design decisions shall be version controlled and approved.

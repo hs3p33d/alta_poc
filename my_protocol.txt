@@ -1,0 +1,40 @@
+Test Case ID: TC-001
+SRS Reference: SRS-002
+Title: SpO2 Alarm Trigger Verification - Standard Mode
+Testing Technique: Boundary Value Analysis
+Priority: High
+
+Preconditions:
+- Device simulation launched and running
+- Monitoring mode set to STANDARD
+- Simulator tool connected and configured
+- SpO2 baseline set to 96%
+
+Step 1: Set SpO2 simulator input to 95%.
+Expected Result: No alarm triggered. SpO2 value displays correctly.
+Pass / Fail: [ ]
+
+Step 2: Set SpO2 simulator input to 93%.
+Expected Result: No alarm triggered. Value displays correctly.
+Pass / Fail: [ ]
+
+Step 3: Set SpO2 simulator input to 92%.
+Expected Result: No alarm for the first 9 seconds.
+Pass / Fail: [ ]
+
+Step 4: Maintain SpO2 at 92% for 11 seconds. Start timer when value hits 92%.
+Expected Result: Alarm triggers between 10 and 12 seconds.
+Both audio and visual indicators active.
+Pass / Fail: [ ]
+
+Step 5: Set SpO2 simulator input to 96%.
+Expected Result: Alarm clears within 5 seconds. Normal display resumes.
+Pass / Fail: [ ]
+
+Post Conditions:
+- Reset simulator to baseline
+- Log result in test management tool
+- If any step fails raise a defect immediately
+
+Notes: Verify both audio and visual alarm activate simultaneously.
+Test must be repeated 3 times to confirm consistency.
