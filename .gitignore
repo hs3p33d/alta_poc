@@ -2,6 +2,16 @@
 .env
 __pycache__/
 *.pyc
+*.py[cod]
+*$py.class
 .DS_Store
 .gradio/certificate.pem
 *.xlsx
+venv/
+
+# Streamlit
+.streamlit/
+
+# VS Code
+.vscode/
+
